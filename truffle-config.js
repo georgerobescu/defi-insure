@@ -1,4 +1,5 @@
 const path = require("path");
+const keys = require('keys');
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -7,6 +8,12 @@ module.exports = {
   networks: {
     develop: {
       port: 8545
+    },
+    rinkeby: {
+      provider: () => {
+        return new HDWalletProvider(keys.privKey, keys.infura);
+      },
+      network_id: 4
     }
   }
 };
