@@ -9,7 +9,8 @@ class App extends Component {
     web3: null, 
     accounts: null, 
     contract: null,
-    value: ''
+    value1: '',
+    value2: ''
   };
 
   componentDidMount = async () => {
@@ -40,14 +41,27 @@ class App extends Component {
     }
   };
 
-  handleChange = (e) => {
-    this.setState({value: e.target.value});
+  // getCompoundPositions
+  handleChange1 = (e) => {
+    this.setState({value1: e.target.value});
   }
 
   getCompoundPositions = async (e) => {
     e.preventDefault();
 
-    const response = await this.state.contract.methods.getCompoundPositions(this.state.value).call();
+    const response = await this.state.contract.methods.getCompoundPositions(this.state.value1).call();
+    console.log(response);
+  }
+
+  // getUniswapExchange
+  handleChange2 = (e) => {
+    this.setState({value2: e.target.value});
+  }
+
+  getUniswapExchange = async (e) => {
+    e.preventDefault();
+
+    const response = await this.state.contract.methods.getUniswapExchange(this.state.value2).call();
     console.log(response);
   }
 
@@ -61,8 +75,16 @@ class App extends Component {
           <input 
             type="text" 
             placeholder="getCompoundPositions" 
-            value={this.state.value}
-            onChange={this.handleChange} />
+            value={this.state.value1}
+            onChange={this.handleChange1} />
+          <button>Go</button>
+        </form>
+        <form onSubmit={this.getUniswapExchange}>
+          <input 
+            type="text" 
+            placeholder="getUniswapExchange" 
+            value={this.state.value2}
+            onChange={this.handleChange2} />
           <button>Go</button>
         </form>
       </div>

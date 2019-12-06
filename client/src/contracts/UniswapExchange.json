@@ -1,27 +1,46 @@
 {
-  "contractName": "cToken",
+  "contractName": "UniswapExchange",
   "abi": [
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "account",
-          "type": "address"
+          "name": "eth_sold",
+          "type": "uint256"
         }
       ],
-      "name": "balanceOfUnderlying",
+      "name": "getEthToTokenInputPrice",
       "outputs": [
         {
-          "name": "",
+          "name": "tokens_bought",
           "type": "uint256"
         }
       ],
       "payable": false,
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "tokens_sold",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenToEthInputPrice",
+      "outputs": [
+        {
+          "name": "eth_bought",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOfUnderlying\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/kaden/Documents/code/defi-insure/contracts/DefiInsure.sol\":\"cToken\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/kaden/Documents/code/defi-insure/contracts/DefiInsure.sol\":{\"keccak256\":\"0x9b56bc127c095a076d3e6abebc259d2dfc1a17ebd9435d4f37d86717b772d405\",\"urls\":[\"bzzr://468937102f14d3109297668a84bd8f5845605ab6b80478b10783ac522965f107\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"name\":\"tokens_sold\",\"type\":\"uint256\"}],\"name\":\"getTokenToEthInputPrice\",\"outputs\":[{\"name\":\"eth_bought\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"eth_sold\",\"type\":\"uint256\"}],\"name\":\"getEthToTokenInputPrice\",\"outputs\":[{\"name\":\"tokens_bought\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/kaden/Documents/code/defi-insure/contracts/DefiInsure.sol\":\"UniswapExchange\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/kaden/Documents/code/defi-insure/contracts/DefiInsure.sol\":{\"keccak256\":\"0x9b56bc127c095a076d3e6abebc259d2dfc1a17ebd9435d4f37d86717b772d405\",\"urls\":[\"bzzr://468937102f14d3109297668a84bd8f5845605ab6b80478b10783ac522965f107\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
@@ -5718,7 +5737,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.17",
-  "updatedAt": "2019-12-06T01:06:12.082Z",
+  "updatedAt": "2019-12-06T01:06:12.073Z",
   "devdoc": {
     "methods": {}
   },
