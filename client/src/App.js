@@ -58,10 +58,10 @@ class App extends Component {
     this.setState({value2: e.target.value});
   }
 
-  getUniswapExchange = async (e) => {
+  valueInDai = async (e) => {
     e.preventDefault();
 
-    const response = await this.state.contract.methods.getUniswapExchange(this.state.value2).call();
+    const response = await this.state.contract.methods.valueInDai(1**18, this.state.value2).call();
     console.log(response);
   }
 
@@ -79,10 +79,10 @@ class App extends Component {
             onChange={this.handleChange1} />
           <button>Go</button>
         </form>
-        <form onSubmit={this.getUniswapExchange}>
+        <form onSubmit={this.valueInDai}>
           <input 
             type="text" 
-            placeholder="getUniswapExchange" 
+            placeholder="valueInDai" 
             value={this.state.value2}
             onChange={this.handleChange2} />
           <button>Go</button>
