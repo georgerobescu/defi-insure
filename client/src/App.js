@@ -61,7 +61,7 @@ class App extends Component {
     this.setState({value1: e.target.value});
   }
 
-  getCompoundPositions = async (e) => {
+  getCompoundPositions = (e) => {
     e.preventDefault();
 
     this.xhrRequest(`https://api.compound.finance/api/v2/account?addresses[]=${this.state.value1}`, (res) => {
@@ -76,6 +76,13 @@ class App extends Component {
     });
   }
 
+  getKyberCurrencies = () => {
+    this.xhrRequest(`https://api.kyber.network/currencies`, (res) => {
+      const response = JSON.parse(res);
+      console.log(response);
+    });
+  }
+
   // getUniswapExchange
   handleChange2 = (e) => {
     this.setState({value2: e.target.value});
@@ -84,8 +91,18 @@ class App extends Component {
   valueInDai = async (e) => {
     e.preventDefault();
 
-    const response = await this.state.contract.methods.valueInDai(1**18, this.state.value2).call();
-    console.log(response);
+    this.xhrRequest(`https://api.kyber.network/buy_rate?id=${this.state.value2}&qty=1`, (res) => {
+      const response = JSON.parse(res);
+      const ethValue = response.data[0].src_qty[0];
+
+      // TODO: Fix this
+      this.xhrRequest(`https://api.kyber.network/buy_rate?id=0x6b175474e89094c44da98b954eedeac495271d0f&qty=1`, (res) => {
+        const response = JSON.parse(res);
+        const daiToEth = response.data[0].src_qty[0];
+        const daiValue = ethValue / daiToEth;
+        console.log('Value in dai: ', daiValue);
+      });
+    });
   }
 
   render() {
@@ -110,6 +127,7 @@ class App extends Component {
             onChange={this.handleChange2} />
           <button>Go</button>
         </form>
+        <button onClick={this.getKyberCurrencies}>getKyberCurrencies</button>
       </div>
     );
   }
