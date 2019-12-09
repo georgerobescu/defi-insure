@@ -76,14 +76,7 @@ class App extends Component {
     });
   }
 
-  getKyberCurrencies = () => {
-    this.xhrRequest(`https://api.kyber.network/currencies`, (res) => {
-      const response = JSON.parse(res);
-      console.log(response);
-    });
-  }
-
-  // getUniswapExchange
+  // valueInDai
   handleChange2 = (e) => {
     this.setState({value2: e.target.value});
   }
@@ -127,7 +120,6 @@ class App extends Component {
             onChange={this.handleChange2} />
           <button>Go</button>
         </form>
-        <button onClick={this.getKyberCurrencies}>getKyberCurrencies</button>
       </div>
     );
   }
