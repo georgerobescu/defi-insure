@@ -41,6 +41,21 @@ class App extends Component {
     }
   };
 
+  xhrRequest = (url, callback) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.open('GET', url, true);
+    xhr.send();
+  
+    xhr.onreadystatechange = (e) => {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        callback(xhr.responseText);
+      } else if(xhr.status === 500) {
+        console.log('500 Error');
+      }
+    }
+  }
+
   // getCompoundPositions
   handleChange1 = (e) => {
     this.setState({value1: e.target.value});
@@ -49,8 +64,16 @@ class App extends Component {
   getCompoundPositions = async (e) => {
     e.preventDefault();
 
-    const response = await this.state.contract.methods.getCompoundPositions(this.state.value1).call();
-    console.log(response);
+    this.xhrRequest(`https://api.compound.finance/api/v2/account?addresses[]=${this.state.value1}`, (res) => {
+      const response = JSON.parse(res);
+      response.accounts[0].tokens.forEach((token) => {
+        if(token.supply_balance_underlying.value > 0) {
+          console.log(token.address);
+          console.log(token.supply_balance_underlying.value);
+          console.log('==============');
+        }
+      });
+    });
   }
 
   // getUniswapExchange
