@@ -12,7 +12,8 @@ class App extends Component {
     contract: null,
     value1: "",
     value2: "",
-    totalDaiValue: 0
+    totalDaiValue: 0,
+    tokenDaiValue: 0
   };
 
   componentDidMount = async () => {
@@ -166,6 +167,15 @@ class App extends Component {
 
   valueInDai = async e => {
     e.preventDefault();
+
+    const ethValueRes = await ApiService.getEthValue(this.state.value2);
+    const ethValue = ethValueRes.data[0].src_qty[0];
+
+    const daiToEthRes = await ApiService.getEthToDai();
+    const daiToEth = daiToEthRes.data[0].src_qty[0];
+    const daiValue = ethValue / daiToEth;
+    console.log("Value in dai: ", daiValue);
+    this.setState({ totalDaiValue: daiValue });
   };
 
   render() {
@@ -192,7 +202,8 @@ class App extends Component {
           />
           <button>Go</button>
         </form>
-        <div>{this.state.totalDaiValue}</div>
+        <div>Total Position in Dai : {this.state.totalDaiValue}</div>
+        <div>Token to Dai value: {this.state.tokenDaiValue}</div>
       </div>
     );
   }
