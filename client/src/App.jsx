@@ -10,10 +10,12 @@ class App extends Component {
     web3: null,
     accounts: null,
     contract: null,
-    value1: "",
+    compoundAddress: "",
+    makerAddress: "",
     value2: "",
     totalDaiValue: 0,
-    tokenDaiValue: 0
+    compundDaiValue: 0,
+    makerCollateralDaiValue: 0
   };
 
   componentDidMount = async () => {
@@ -60,8 +62,11 @@ class App extends Component {
   // }
 
   // getCompoundPositions
-  handleChange1 = e => {
-    this.setState({ value1: e.target.value });
+  handleCompoundAddressChange = e => {
+    this.setState({ compoundAddress: e.target.value });
+  };
+  handleMakerAddressChange = e => {
+    this.setState({ makerAddress: e.target.value });
   };
 
   // getCompoundPositions = (e) => {
@@ -82,65 +87,93 @@ class App extends Component {
   getCompoundPositions = async e => {
     e.preventDefault();
 
-    const cTokens = await ApiService.getAccount(this.state.value1);
-    cTokens.accounts[0].tokens.forEach(token => {
-      if (token.supply_balance_underlying.value > 0) {
-        console.log(token.address);
-        console.log(token.supply_balance_underlying.value);
-        console.log("==============");
-      }
-    });
-    console.log(cTokens);
+    const cTokens = await ApiService.getAccount(this.state.compoundAddress);
+    if (cTokens.accounts !== undefined) {
+      cTokens.accounts[0].tokens.forEach(token => {
+        if (token.supply_balance_underlying.value > 0) {
+          console.log(token.address);
+          console.log(token.supply_balance_underlying.value);
+          console.log("==============");
+        }
+      });
+      console.log(cTokens);
 
-    const underlyingToken = await Promise.all(
-      cTokens.accounts[0].tokens.map(token =>
-        ApiService.getCTokenInfo(token.address)
-      )
+      const underlyingToken = await Promise.all(
+        cTokens.accounts[0].tokens.map(token =>
+          ApiService.getCTokenInfo(token.address)
+        )
+      );
+
+      console.log(underlyingToken);
+
+      const underlyingTokenAddrAndSupply = underlyingToken.map((token, i) => ({
+        underlying_address: token.cToken[0].underlying_address,
+        supply_balance_underlying: Number.parseFloat(
+          cTokens.accounts[0].tokens.filter(
+            ctoken => ctoken.address === token.cToken[0].token_address
+          )[0].supply_balance_underlying.value
+        )
+      }));
+      console.log(underlyingTokenAddrAndSupply);
+
+      const ethValueUnderlying = await Promise.all(
+        underlyingTokenAddrAndSupply.map(token => {
+          if (token.supply_balance_underlying > 0)
+            return ApiService.getEthValue(token.underlying_address);
+          return undefined;
+        })
+      );
+      console.log(ethValueUnderlying);
+
+      const ethConversion = ethValueUnderlying.map((value, i) =>
+        value !== undefined
+          ? underlyingTokenAddrAndSupply[i].supply_balance_underlying *
+            value.data[0].src_qty[0]
+          : 0
+      );
+      console.log(ethConversion);
+
+      const daiToEthRes = await ApiService.getEthToDai();
+      const daiToEth = daiToEthRes.data[0].src_qty[0];
+
+      const daiConversion = ethConversion.map(ethValue => {
+        if (ethValue !== undefined) {
+          const daiValue = ethValue / daiToEth;
+          console.log("Value in dai: ", daiValue);
+          return daiValue;
+        }
+        return undefined;
+      });
+      console.log(daiConversion);
+
+      const totalDaiValue = daiConversion.reduce((prev, curr) => prev + curr);
+      console.log(totalDaiValue);
+      this.setState({ compundDaiValue: totalDaiValue });
+    }
+  };
+
+  getMakerPosition = async e => {
+    e.preventDefault();
+
+    const makerPosition = await ApiService.getMakerCollateral(
+      this.state.makerAddress
     );
+    const makerCollateralTotal = makerPosition.allCups.nodes
+      .map(maker => Number.parseFloat(maker.ink))
+      .reduce((prev, curr) => prev + curr);
+    console.log(makerCollateralTotal);
 
-    console.log(underlyingToken);
+    const pEthToEthRes = await ApiService.getPEthToEthPrice();
+    const pEthToEth = Object.values(pEthToEthRes)[0].eth;
+    console.log(pEthToEth);
 
-    const underlyingTokenAddrAndSupply = underlyingToken.map((token, i) => ({
-      underlying_address: token.cToken[0].underlying_address,
-      supply_balance_underlying: Number.parseFloat(
-        cTokens.accounts[0].tokens.filter(
-          ctoken => ctoken.address === token.cToken[0].token_address
-        )[0].supply_balance_underlying.value
-      )
-    }));
-    console.log(underlyingTokenAddrAndSupply);
-
-    const ethValueUnderlying = await Promise.all(
-      underlyingTokenAddrAndSupply.map(token => {
-        if (token.supply_balance_underlying > 0)
-          return ApiService.getEthValue(token.underlying_address);
-      })
-    );
-    console.log(ethValueUnderlying);
-
-    const ethConversion = ethValueUnderlying.map((value, i) =>
-      value !== undefined
-        ? underlyingTokenAddrAndSupply[i].supply_balance_underlying *
-          value.data[0].src_qty[0]
-        : 0
-    );
-    console.log(ethConversion);
-
+    const makerCollateralInEth = makerCollateralTotal * pEthToEth;
     const daiToEthRes = await ApiService.getEthToDai();
     const daiToEth = daiToEthRes.data[0].src_qty[0];
+    const makerCollateralInDai = makerCollateralInEth / daiToEth;
+    console.log(makerCollateralInDai);
 
-    const daiConversion = ethConversion.map(ethValue => {
-      if (ethValue != undefined) {
-        const daiValue = ethValue / daiToEth;
-        console.log("Value in dai: ", daiValue);
-        return daiValue;
-      }
-    });
-    console.log(daiConversion);
-
-    const totalDaiValue = daiConversion.reduce((prev, curr) => prev + curr);
-    console.log(totalDaiValue);
-    this.setState({ totalDaiValue });
+    this.setState({ makerCollateralDaiValue: makerCollateralInDai });
   };
 
   // valueInDai
@@ -188,8 +221,17 @@ class App extends Component {
           <input
             type="text"
             placeholder="getCompoundPositions"
-            value={this.state.value1}
-            onChange={this.handleChange1}
+            value={this.state.compoundAddress}
+            onChange={this.handleCompoundAddressChange}
+          />
+          <button>Go</button>
+        </form>
+        <form onSubmit={this.getMakerPosition}>
+          <input
+            type="text"
+            placeholder="getMakerPosition"
+            value={this.state.makerAddress}
+            onChange={this.handleMakerAddressChange}
           />
           <button>Go</button>
         </form>
@@ -202,7 +244,10 @@ class App extends Component {
           />
           <button>Go</button>
         </form>
-        <div>Total Position in Dai : {this.state.totalDaiValue}</div>
+        <div>Compound Position in Dai : {this.state.compundDaiValue} Dai</div>
+        <div>
+          Maker Position in Dai : {this.state.makerCollateralDaiValue} Dai
+        </div>
         <div>Token to Dai value: {this.state.tokenDaiValue}</div>
       </div>
     );
