@@ -96,6 +96,26 @@ class ApiService {
       .catch(err => console.log(err));
     return response;
   };
+
+  getNexusQuotes = async (
+    sumAssured,
+    currencyType,
+    coverPeriod,
+    smartCoverAddress
+  ) => {
+    const response = await fetch(
+      `https://api.nexusmutual.io/getquote/${sumAssured}/${currencyType}/${coverPeriod}/${smartCoverAddress}/K9`,
+      {
+        method: "GET",
+        headers: {
+          "x-api-key": "c904-42c7-2f90-a561"
+        }
+      }
+    )
+      .then(res => res.json())
+      .catch(err => console.log(err));
+    return response;
+  };
 }
 
 export default ApiService;
