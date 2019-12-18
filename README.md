@@ -26,6 +26,13 @@ Given an address, determine which Defi protocols are being used along with the s
 - The user chooses to purchase insurance.
 - Insurance is purchased for each protocol on behalf of the user.
 
+## Try it yourself
+
+- `git clone`
+- `npm install`
+- `cd client`
+- `npm run start`
+
 ## Notes
 
-- Due to several unforeseen constraints, this project is incomplete.
+- Due to several unforeseen constraints, smart contract integration has not yet been setup.
